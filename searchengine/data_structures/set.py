@@ -9,14 +9,15 @@ class Set:
     def __init__(self, iterable=[]):
         """Inicijalizuj skup.
     
-        Parametri:
+        Argumenti:
             iterable - elementi koje inicijalno treba ubaciti u skup. Ako se izostavi,
             skup ce biti prazan.
         """
         self.elements = {}
         # ideja 1 - kada se izvuce lista reci iz dokumenta, napraviti od nje set 
         # (koji sadrži i broj pojavljivanja svake reci)
-        # zatim proci kroz sve elemente seta i dodavati u trie (pri cemu se direktno ubacuje vec izracunati broj pojavljivanja)
+        # zatim proci kroz sve elemente seta i dodavati u trie
+        # (pri cemu se direktno ubacuje vec izracunati broj pojavljivanja)
         # potencijalno nije dobra ideja ako je prosecan broj pojavljivanja reci u dokumentu ~= 1 ?
         # ideja 2 - direktno prolaziti kroz listu reci i dodavati u trie
         # potencijalno lose ako je prosecan broj pojavljivanja >> 1 ? (vise puta se kroz trie dolazi do kraja iste reci)
