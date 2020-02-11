@@ -87,26 +87,5 @@ class Set:
     def __str__(self):
         return str([elem for elem in self.elements.keys()])
 
-    
-if __name__ == "__main__":
-    # mini test klase
-    test = Set()
-    test.add("blah")
-    test.add("blah")
-    test.add("weeeeee")
-
-    second = Set()
-    second.add("weeee")
-    second.add("weeeeee")
-
-    print(test)
-    print(second)
-
-    print(test-second)
-    print(test & second)
-    print(test | second)
-
-    third = Set(["blah", "blah", "weeee", "blahblah"])
-    print(third)
 
 

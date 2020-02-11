@@ -47,4 +47,34 @@ class Graph:
         """Vrati dictionary sa granama grafa."""
         return self.edges
 
-    # TODO metoda za breadth first prolaz za rangiranje
+    def bft(self, startNode, depth=None):
+        """Vrati listu koja sadrzi redosled cvorova za obilazak po dubini.
+        
+        Argumenti:
+            startNode - cvor od kog pocinje obilazak.
+            depth - dubina do koje treba obilaziti graf. None ako treba obici 
+            citav graf.
+        """
+        # TODO ispraviti ovo
+        # slati f-u koja odredjuje da li se cvor obradjuje i f-u koja obradjuje cvor?
+        retVal = []
+        obradjeni = set()
+
+        if startNode in self.edges:
+            retVal.append((startNode, 0))
+
+        pos = 0
+
+        while pos < len(retVal):
+            node, currdepth = retVal[pos]
+            if depth is not None and currdepth >= depth:
+                break
+            if node not in obradjeni:
+                retVal.extend([(page, currdepth + 1) for page in self.edges[node]])
+                obradjeni.add(node)
+            pos += 1
+
+        return retVal
+            
+
+        
