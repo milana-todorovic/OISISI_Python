@@ -14,14 +14,6 @@ class Set:
             skup ce biti prazan.
         """
         self.elements = {}
-        # ideja 1 - kada se izvuce lista reci iz dokumenta, napraviti od nje set 
-        # (koji sadrži i broj pojavljivanja svake reci)
-        # zatim proci kroz sve elemente seta i dodavati u trie
-        # (pri cemu se direktno ubacuje vec izracunati broj pojavljivanja)
-        # potencijalno nije dobra ideja ako je prosecan broj pojavljivanja reci u dokumentu ~= 1 ?
-        # ideja 2 - direktno prolaziti kroz listu reci i dodavati u trie
-        # potencijalno lose ako je prosecan broj pojavljivanja >> 1 ? (vise puta se kroz trie dolazi do kraja iste reci)
-        # probaj oboje, vidi sta je brze
         for elem in iterable:
             self.add(elem)
 

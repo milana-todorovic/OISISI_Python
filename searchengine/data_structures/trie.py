@@ -52,5 +52,3 @@ class Trie:
             currnode = currnode.children[letter]
 
         return currnode.pages
-
-

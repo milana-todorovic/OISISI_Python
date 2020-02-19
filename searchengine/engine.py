@@ -1,8 +1,10 @@
-#from datetime import datetime
+from datetime import datetime
 
 from searchengine.file_util.parser import Parser as HTMLFileParser
 from searchengine.file_util import file_finder
 from searchengine.data_structures.graph import Graph
+from searchengine.data_structures.trie import Trie
+from searchengine.data_structures.set import Set
 
 class SearchEngine:
     """Klasa koja sadrzi strukture i parametre neophodne za pretragu."""
@@ -10,6 +12,7 @@ class SearchEngine:
     def __init__(self):
         # TODO napravi prazne strukture i default parametre
         self.graph = Graph()
+        self.trie = Trie()
 
     def loadroot(self, rootdir):
         # TODO dodavanje u trie
@@ -19,6 +22,7 @@ class SearchEngine:
             return False
 
         self.graph = Graph(htmlfiles)
+        self.trie = Trie()
 
         htmlparser = HTMLFileParser()
         # bez ikakvih struktura podataka - 10 do 11 sekundi
@@ -27,6 +31,9 @@ class SearchEngine:
         for file in htmlfiles:
             links, words = htmlparser.parse(file)
             self.graph.insert_edge(file, links)
+            s = Set(map(str.lower, words))
+            for word, val in s.elements.items():
+                self.trie.add(word, file, val)
 
         return True
 
@@ -40,5 +47,7 @@ class SearchEngine:
 
 if __name__ == "__main__":
     # TODO pokretati odavde? napraviti odvojen fajl za pokretanje? pokretati kao modul ili ne??
+    start = datetime.now()
     se = SearchEngine()
-    se.loadroot("C:\\Users\\Lana\\Desktop\\py\\test-skup")
+    se.loadroot("C:\\Users\\Win 10\\Downloads\\python-2.7.7-docs-html")
+    print(datetime.now() - start)
