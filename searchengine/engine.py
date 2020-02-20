@@ -33,7 +33,6 @@ class SearchEngine:
 
         return True
 
-
     def search(self, query):
         # TODO parsiraj i obradi upit
         pass
@@ -43,11 +42,21 @@ class SearchEngine:
 
 if __name__ == "__main__":
     # TODO pokretati odavde? napraviti odvojen fajl za pokretanje? pokretati kao modul ili ne??
+    start = datetime.now()
     se = SearchEngine()
     se.loadroot("C:\\Users\\Lana\\Desktop\\py\\test-skup")
-    s = Set()
-    for node in se.graph.get_nodes():
-        s.add(node, ranking.RankData(random.randint(1, 100)))
-    start = datetime.now()
-    ranking.calculate_rank(se.graph, s, 0.5, 2)
     print(datetime.now() - start)
+    s = Set()
+    s1 = Set()
+    for node in se.graph.get_nodes():
+        s1.add(node, 1)
+        s.add(node, random.randint(1, 200))
+    r = ranking.RankingParameters()
+    initLinkScores = ranking.calculate_link_scores(se.graph, s1, r.depth, r.decay)
+    start = datetime.now()
+    blah = ranking.rank_and_sort(se.graph, s, initLinkScores, r)
+    print(datetime.now() - start)
+
+    
+    
+    

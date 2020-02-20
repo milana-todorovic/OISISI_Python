@@ -1,4 +1,8 @@
+from collections import deque
+import itertools
+
 from searchengine.data_structures.set import Set
+
 
 class Graph:
     """Implementacija usmerenog grafa zasnovana na upotrebi tipova dictionary i Set."""
@@ -47,34 +51,26 @@ class Graph:
         """Vrati dictionary sa granama grafa."""
         return self.edges
 
-    def bft(self, startNode, depth=None):
-        """Vrati listu koja sadrzi redosled cvorova za obilazak po dubini.
+    def bfs(self, startNode, depth=None):
+        """Vrati iterator za depth first obilazak grafa.
         
         Argumenti:
             startNode - cvor od kog pocinje obilazak.
             depth - dubina do koje treba obilaziti graf. None ako treba obici 
             citav graf.
         """
-        # TODO ispraviti ovo
-        # slati f-u koja odredjuje da li se cvor obradjuje i f-u koja obradjuje cvor?
-        retVal = []
+        queue = deque()
         obradjeni = set()
 
         if startNode in self.edges:
-            retVal.append((startNode, 0))
+            queue.append((startNode, 0))
 
-        pos = 0
-
-        while pos < len(retVal):
-            node, currdepth = retVal[pos]
-            if depth is not None and currdepth >= depth:
-                break
-            if node not in obradjeni:
-                retVal.extend([(page, currdepth + 1) for page in self.edges[node]])
+        while len(queue) != 0:
+            node, currdepth = queue.popleft()
+            if (depth is None or currdepth < depth) and node not in obradjeni:
+                queue.extend(zip(self.edges[node], itertools.repeat(currdepth + 1)))
                 obradjeni.add(node)
-            pos += 1
-
-        return retVal
+            yield node, currdepth
             
 
         
