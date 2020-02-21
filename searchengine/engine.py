@@ -118,9 +118,7 @@ class SearchEngine:
     def pretraga(self,reci,trie):
         listaReci = []
         listaSkupova = []
-
-        # U zavisnosti koji operator imamo, moracemo posle uraditi odredjenu skupovnu operaciju
-        # TODO odraditi skupovne operacije u zavisnosti od operatora koji imamo
+        rezultujuciSkup = Set()
 
         """
             Pravim listu reci, bez logickih operatora.
@@ -137,9 +135,27 @@ class SearchEngine:
         for rec in listaReci:
             listaSkupova.append(trie.find(rec))
 
-        for el in listaSkupova:
-            print(el)
-            print("\n")
+        # for el in listaSkupova:
+        #     print(el)
+        #     print("\n")
+
+        """
+            U zavisnosti koji logicki operator imamo, vrsimo odgovarajucu logicku operaciju nad skupovima.
+        """
+        if 'and' in reci:
+            rezultujuciSkup = listaSkupova[0] & listaSkupova[1]
+        elif 'not' in reci:
+            rezultujuciSkup = listaSkupova[0] - listaSkupova[1]
+        else:
+            for i in range(len(listaSkupova)):
+                rezultujuciSkup = rezultujuciSkup | listaSkupova[i]
+
+
+        for e in rezultujuciSkup:
+            print(e)
+        print("Skup ima " + str(len(rezultujuciSkup)) + " stranica")
+        return rezultujuciSkup
+
 
 
 
