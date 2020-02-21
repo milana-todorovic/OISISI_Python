@@ -59,7 +59,10 @@ def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ran
         depth - dubina do koje se obilazi graf.
         decay - faktor opadanja uticaja sa dubinom.
     """
-    return radix(calculate_rank(graph, searchResult, initLinkScores, params))
+    if len(searchResult) == 0:
+        return []
+    else:
+        return radix(calculate_rank(graph, searchResult, initLinkScores, params))
 
 
 def calculate_link_scores(graph:Graph, pages:Set, depth, decay):
@@ -92,7 +95,7 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
     
     Argumenti:
         graph - graf koji sadrzi linkove izmedju stranica.
-        searchResult - skup stranica koje se rangiraju. Pridruzene vrednosti u skupu se posmatraju
+        searchResult - neprazan skup stranica koje se rangiraju. Pridruzene vrednosti u skupu se posmatraju
         kao broj reci u stranici.
         initLinkScores - inicijalni rang izracunat na osnovu linkova.
         params - parametri potrebni za rangiranje.
@@ -121,8 +124,8 @@ def radix(iterable):
     """Implementacija radix sort algoritma.
 
     Argumenti:
-        iterable - sadrzi elemente koje treba sortirati. Elementi moraju imati implementiranu
-        metode __int__ i __gt__.
+        iterable - sadrzi elemente koje treba sortirati. Ne sme biti prazan. Elementi moraju imati 
+        implementirane metode __int__ i __gt__.
     """
 
     retVal = list(iterable)
