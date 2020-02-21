@@ -8,6 +8,7 @@ from searchengine.data_structures.graph import Graph
 from searchengine.data_structures.set import Set
 from searchengine.data_structures.trie import Trie
 import searchengine.ranking as ranking
+from searchengine.ui.pagination import Pagination
 
 
 class SearchEngine:
@@ -182,5 +183,5 @@ if __name__ == "__main__":
     start = datetime.now()
     res = ranking.rank_and_sort(se.graph, se.pretraga(["the"]), se.initLinkScores, se.rParams)
     print(datetime.now() - start)
-    for pg in res:
+    for pg in Pagination(res, 10).show():
         print(pg)
