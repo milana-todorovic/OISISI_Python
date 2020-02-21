@@ -46,7 +46,7 @@ class RankResult:
         return int(self) > int(other)
 
     def __str__(self):
-        return self.path + "\t" + str(self.rank)
+        return ("{}:\n\tWord Score: {}\tLinkScore: {}\tTotal:{}").format(self.path, self.wordScore, self.linkScore, self.rank)
 
 
 def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:RankingParameters):
