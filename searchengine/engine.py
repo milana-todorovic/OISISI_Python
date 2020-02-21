@@ -15,8 +15,6 @@ class SearchEngine:
         self.trie = Trie()
 
     def loadroot(self, rootdir):
-        # TODO dodavanje u trie
-
         htmlfiles = file_finder.findext(rootdir, ".html", ".htm")
         if len(htmlfiles) == 0:
             return False
@@ -35,12 +33,10 @@ class SearchEngine:
             for word, val in s.elements.items():
                 self.trie.add(word, file, val)
 
-        return True
-
-
+        return self.trie
 
     def unos_upita(self):
-        print(datetime.now() - start)
+
         upit = input("Unesite upit:")
 
         reci = upit.strip().split(" ")
@@ -66,7 +62,7 @@ class SearchEngine:
                             upit, reci = ponovni_unos()
                             uspesno = False
                         else:
-                            #TODO izvrsiti pretragu na osnovu AND-a
+                            #TODO izvrsiti pretragu na osnovu AND-a, ili bolje da ostane u metodi pretraga?
                             pass
 
                 else:
@@ -85,7 +81,7 @@ class SearchEngine:
                             upit, reci = ponovni_unos()
                             uspesno = False
                         else:
-                            # TODO izvrsiti pretragu na osnovu OR-a
+                            # TODO izvrsiti pretragu na osnovu OR-a, ili bolje da ostane u metodi pretraga?
                             pass
 
                 else:
@@ -105,7 +101,7 @@ class SearchEngine:
                             upit, reci = ponovni_unos()
                             uspesno = False
                         else:
-                            # TODO izvrsiti pretragu za NOT
+                            # TODO izvrsiti pretragu za NOT, ili bolje da ostane u metodi pretraga?
                             pass
 
                 else:
@@ -117,6 +113,34 @@ class SearchEngine:
                     running = False
             else:
                 running=False
+        return reci
+
+    def pretraga(self,reci,trie):
+        listaReci = []
+        listaSkupova = []
+
+        # U zavisnosti koji operator imamo, moracemo posle uraditi odredjenu skupovnu operaciju
+        # TODO odraditi skupovne operacije u zavisnosti od operatora koji imamo
+
+        """
+            Pravim listu reci, bez logickih operatora.
+        """
+        if 'and' or 'not' or 'or' in reci:
+            for e in reci:
+                if e not in ('and','or','not'):
+                    listaReci.append(e)
+
+        """
+            Prolazak kroz listu reci i za svaku rec dobijamo njen skup.
+            I taj skup dodajemo u listu skupova.
+        """
+        for rec in listaReci:
+            listaSkupova.append(trie.find(rec))
+
+        for el in listaSkupova:
+            print(el)
+            print("\n")
+
 
 
 
@@ -138,5 +162,9 @@ if __name__ == "__main__":
     # TODO pokretati odavde? napraviti odvojen fajl za pokretanje? pokretati kao modul ili ne??
     start = datetime.now()
     se = SearchEngine()
-    se.loadroot("C:\\Users\\Win 10\\Downloads\\python-2.7.7-docs-html")
-    se.unos_upita()
+    #se.loadroot("C:\\Users\\Win 10\\Downloads\\python-2.7.7-docs-html")
+    trie = se.loadroot("C:\\Users\\Win 10\\Desktop\\Drugi projektni zadatak\\python-2.7.7-docs-html\\tutorial")
+    #trie = se.loadroot("C:\\Users\\Win 10\\Desktop\\Drugi projektni zadatak\\python-2.7.7-docs-html\\anaTest")
+    print(datetime.now() - start)
+    listaReci = se.unos_upita()
+    se.pretraga(listaReci,trie)
