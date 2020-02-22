@@ -1,12 +1,9 @@
-from datetime import datetime
-
 from searchengine.file_util.parser import Parser as HTMLFileParser
 from searchengine.file_util import file_finder
 from searchengine.data_structures.graph import Graph
 from searchengine.data_structures.set import Set
 from searchengine.data_structures.trie import Trie
-import searchengine.ranking as ranking
-from searchengine.ui.pagination import Pagination
+import searchengine.core.ranking as ranking
 from searchengine.query import simple_query
 
 
@@ -71,16 +68,3 @@ class SearchEngine:
 
 
     # TODO dodati setere za parametre za rangiranje
-
-
-if __name__ == "__main__":
-    # TODO pokretati odavde? napraviti odvojen fajl za pokretanje? pokretati kao modul ili ne??
-    start = datetime.now()
-    se = SearchEngine()
-    se.loadroot("C:\\Users\\Win 10\\Desktop\\Drugi projektni zadatak\\python-2.7.7-docs-html")
-    print(datetime.now() - start)
-    start = datetime.now()
-    res = se.simple_search("python")
-    print(datetime.now() - start)
-    for pg in Pagination(res, 10).show():
-        print(pg)
