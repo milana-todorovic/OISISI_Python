@@ -14,14 +14,12 @@ class RankingParameters:
 
         Argumenti:
             wordInfluence - procenat ranga stranice koji odredjuje broj pronadjenih reci.
-            linkInfluence - procenat ranga stranice koji odredjuju linkovi na stranicu.
-            initialLinkWeight - uticaj na rang linkova sa stranica koje ne sadrze trazene
-            reci. Vrijednost N znaci da ce svaka stranica koja ne sadrzi rec uticati na
-            rang kao da sadrzi N reci, a stranica koja sadrzi M reci ce uticati kao da 
-            sadrzi M + N reci.
-            decay - koeficijent kojim se mnozi broj reci u stranici pri racunanju njenog
-            uticaja na rang stranica koje linkuje.
-            depth - dubina do koje linkovi imaju uticaj. 
+            relevantLinkInfluence - procenat ranga stranice koji odredjuju linkovi stranica
+            koje i same sadrze trazenu rec.
+            generalLinkInfluence - procenat ranga stranice koji odredjuju svi linkovi, bez 
+            obzira na to da li stranica koja linkuje sadrzi rec ili ne.
+            orWeight - uticaj broja pronadjenih reci u or upitima.
+            depth - dubina do koje se graf posmatra pri racunanju uticaja linkova. 
         """
         self.wordInf = wordInfluence
         self.relevantLinkInf = relevantLinkInfluence
@@ -77,10 +75,10 @@ def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ran
     
     Argumenti:
         graph - graf koji sadrzi linkove izmedju stranica.
-        pages - stranice za koje se racuna uticaj linkova na rang. Pridruzene vrednosti
-        u skupu predstavljaju uticaj koji stranica ima na rang linkovanih stranica.
-        depth - dubina do koje se obilazi graf.
-        decay - faktor opadanja uticaja sa dubinom.
+        searchResult - skup rezultata pretrage, sa pridruzenim podacima za rangiranje tipa
+        RankData.
+        initLinkScores - skor od linkova bez uticaja pronadjenih reci u stranicama.
+        params - parametri rangiranja.
     """
     if len(searchResult) == 0:
         return []
@@ -96,7 +94,6 @@ def calculate_link_scores(graph:Graph, pages:Set, depth):
         pages - stranice za koje se racuna uticaj linkova na rang. Pridruzene vrednosti
         u skupu predstavljaju uticaj koji stranica ima na rang linkovanih stranica.
         depth - dubina do koje se obilazi graf.
-        decay - faktor opadanja uticaja sa dubinom.
     """
 
     # pripremi povratnu vrednost - O(n)
@@ -124,10 +121,10 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
     
     Argumenti:
         graph - graf koji sadrzi linkove izmedju stranica.
-        searchResult - neprazan skup stranica koje se rangiraju. Pridruzene vrednosti u skupu se posmatraju
-        kao broj reci u stranici.
-        initLinkScores - inicijalni rang izracunat na osnovu linkova.
-        params - parametri potrebni za rangiranje.
+        searchResult - skup rezultata pretrage, sa pridruzenim podacima za rangiranje tipa
+        RankData.
+        initLinkScores - skor od linkova bez uticaja pronadjenih reci u stranicama.
+        params - parametri rangiranja.
     """
 
     # odvoji skor od reci od skora za or - O(n)
