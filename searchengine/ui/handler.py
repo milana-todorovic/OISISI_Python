@@ -2,6 +2,7 @@ from datetime import datetime
 
 from searchengine.core.engine import SearchEngine
 from searchengine.query.simple_query import SimpleQueryError
+from searchengine.query.complex_query import ComplexQueryError
 from searchengine.ui.pagination import Pagination
 
 
@@ -22,12 +23,15 @@ class UIHandler:
         while running:
             print()
             print("S - Osnovna pretraga")
+            print("Q - Napredna pretraga")
             print("C - Promena direktorijuma za pretragu")
             print("O - Ostale postavke")
             print("Bilo koji drugi karakter za završetak rada.")
             op = input("\t>> ").lower()
             if op == "s":
                 self.simple_search()
+            elif op == "q":
+                self.complex_search()
             elif op == "c":
                 self.choose_root()
             elif op == "o":
@@ -63,19 +67,40 @@ class UIHandler:
                 try:
                     start = datetime.now()
                     res = self.engine.simple_search(query)
-                    print("Utrošeno vreme: " + str(datetime.now() - start))
+                    print("\nUtrošeno vreme: " + str(datetime.now() - start))
                     search = self.show_search_result(res)
                 except SimpleQueryError as err:
                     print(err.message)
+
+    def complex_search(self):
+        """Pretrazi po upitu sa naprednom upotrebom logickih operatora."""
+
+        search = True
+        while search:
+            print()
+            query = input("Unesite upit (enter za povratak na glavni meni).\n\t>> ")
+            if query == "":
+                search = False
+            else:
+                try:
+                    start = datetime.now()
+                    res = self.engine.complex_search(query)
+                    print("\nUtrošeno vreme: " + str(datetime.now() - start))
+                    search = self.show_search_result(res)
+                except ComplexQueryError:
+                    print("Greška u upitu!")
 
     def show_search_result(self, result):
         """Prikazi rezultat pretrage."""
 
         pag = Pagination(result, self.resultsPerPage)
+        numres = len(result)
         while True:
             print()
             currpage = pag.show()
-            print("Pronađeno ukupno " + str(len(result)) + " rezultata.\n")
+            print("Pronađeno ukupno " + str(numres) + " rezultata.")
+            if numres > 0:
+                print()
             for p in currpage:
                 print(p)
 
@@ -99,6 +124,7 @@ class UIHandler:
             else:
                 # TODO skontati zasto ovo nekad zapuca i ne ispise prompt za pretragu vec odmah ceka dalji unos
                 # i to samo u pycharmu u powershellu ne
+                # u vscode isto ne
                 return True
 
     def change_results_per_page(self):
@@ -108,10 +134,12 @@ class UIHandler:
             try:
                 print()
                 i = int(input("Unesite zeljeni broj rezultata po stranici.\n\t>> "))
+                if i <= 0:
+                    raise ValueError()
                 self.resultsPerPage = i
                 return i
             except ValueError:
-                print("Unos mora biti broj!")
+                print("Unos mora biti prirodan broj!")
 
     def settings(self):
         """Promeni podesavanja stranica i rangiranja."""

@@ -5,6 +5,7 @@ from searchengine.data_structures.set import Set
 from searchengine.data_structures.trie import Trie
 import searchengine.core.ranking as ranking
 from searchengine.query import simple_query
+from searchengine.query.complex_query import ComplexQueryParser
 
 
 class SearchEngine:
@@ -16,6 +17,8 @@ class SearchEngine:
         self.trie = Trie()
         self.rParams = ranking.RankingParameters()
         self.initLinkScores = {}
+        self.complexParser = ComplexQueryParser()
+        self.allPages = Set()
 
     def loadroot(self, rootdir):
         """Pronadji html fajlove u zadatom direktorijumu i pripremi strukture za pretragu.
@@ -40,7 +43,16 @@ class SearchEngine:
 
         self.initLinkScores = ranking.calculate_link_scores(self.graph, Set(htmlfiles), self.rParams.depth, self.rParams.decay)
 
+        # skup svih stranica, potreban za ! operator kod kompleksne pretrage
+        self.allPages = Set()
+        for page in htmlfiles:
+            self.allPages.add(page, val=0)
+
         return True
+
+    def complex_search(self, query):
+        result = self.complexParser.parse(query).evaluate(self.trie, self.allPages)
+        return ranking.rank_and_sort(self.graph, result, self.initLinkScores, self.rParams)
 
     def simple_search(self, query):
         """Pretrazi i rangiraj rezultat.

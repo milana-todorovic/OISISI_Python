@@ -13,7 +13,7 @@ class OrNode:
 
     def evaluate(self, trie:Trie, allPages:Set):
         # TODO napraviti metodu za evaluaciju
-        pass
+        return Set()
 
 
 class AndNode:
@@ -25,7 +25,7 @@ class AndNode:
 
     def evaluate(self, trie:Trie, allPages:Set):
         # TODO napraviti metodu za evaluaciju
-        pass
+        return Set()
 
 
 class NotNode:
@@ -36,18 +36,18 @@ class NotNode:
 
     def evaluate(self, trie:Trie, allPages:Set):
         # TODO napraviti metodu za evaluaciju
-        pass
+        return Set()
 
 
 class WordNode:
-    """Klasa koja predstavlja rec koju treba pretraziti u stablu medjukoda."""
+    """Klasa koja predstavlja rec u stablu medjukoda."""
 
     def __init__(self, word):
         self.word = word
 
     def evaluate(self, trie:Trie, allPages:Set):
         # TODO napraviti metodu za evaluaciju
-        pass
+        return Set()
 
 
 class ComplexQueryError(Exception):
@@ -106,7 +106,7 @@ class ComplexQueryParser:
     def parse(self, query):
         """Parsiraj upit i vrati stablo medjukoda."""
 
-        #try:
-        return self.parser.parse(query)
-        #except parglare.exceptions.ParseError:
-        #    raise ComplexQueryError()
+        try:
+            return self.parser.parse(query)
+        except parglare.exceptions.ParseError:
+            raise ComplexQueryError()
