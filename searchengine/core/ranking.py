@@ -9,7 +9,7 @@ from searchengine.data_structures.set import Set
 class RankingParameters:
     """Klasa koja sadrzi parametre koji uticu na rangiranje."""
 
-    def __init__(self, wordInfluence=50, relevantLinkInfluence=40, generalLinkInfluence=10, depth=2):
+    def __init__(self, wordInfluence=50, relevantLinkInfluence=40, generalLinkInfluence=10, orWeight=0.5, depth=2):
         """Inicijalizacija parametara rangirnja.
 
         Argumenti:
@@ -26,18 +26,40 @@ class RankingParameters:
         self.wordInf = wordInfluence
         self.relevantLinkInf = relevantLinkInfluence
         self.generalLinkInf = generalLinkInfluence
+        self.orWeight = orWeight
         self.depth = depth
+
+
+class RankData:
+    def __init__(self, wordScore, orScore):
+        self.wordScore = wordScore
+        self.orScore = orScore
+
+    def __add__(self, other):
+        # ovu operaciju poziva presjek
+        return RankData(self.wordScore + other.wordScore, max(self.orScore, other.orScore))
+
+    def __iadd__(self, other):
+        # ovu operaciju pozivaju unija i dodavanje u skup
+        # dodavanje je pravljeno tako da ce se pri inicijalnom pravljenju trie strukture
+        # za svaku rec stranica dodati samo jednom
+        # tako da je inicijalni orScore za svaku stranicu 1
+        self.wordScore += other.wordScore
+        self.orScore += other.orScore
+        return self
 
 
 class RankResult:
     """Klasa koja predstavlja stranicu sa izracunatim rangom."""
 
-    def __init__(self, path, wordScore, relevantLinkScore, generalLinkScore):
+    def __init__(self, path, wordScore, relevantLinkScore, generalLinkScore, orScore, orWeight):
         self.path = path
         self.wordScore = wordScore
         self.relLinkScore = relevantLinkScore
         self.genLinkScore = generalLinkScore
-        self.rank = int(wordScore + relevantLinkScore + generalLinkScore)
+        self.orScore = orScore
+        orFactor = (orScore - 1)*orWeight + 1
+        self.rank = int((wordScore + relevantLinkScore + generalLinkScore)*orFactor)
 
     def __int__(self):
         return self.rank
@@ -46,8 +68,8 @@ class RankResult:
         return int(self) > int(other)
 
     def __str__(self):
-        strformat = "{}:\n\tReci: {:.2f}\tRelevantni linkovi: {:.2f}\tSvi linkovi: {:.2f}\tUkupno: {}"
-        return strformat.format(self.path, self.wordScore, self.relLinkScore, self.genLinkScore, self.rank)
+        strformat = "{}:\n\tReci: {:.2f}\tRelevantni linkovi: {:.2f}\tSvi linkovi: {:.2f}\tOr: {}\tUkupno: {}"
+        return strformat.format(self.path, self.wordScore, self.relLinkScore, self.genLinkScore, self.orScore, self.rank)
 
 
 def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:RankingParameters):
@@ -77,13 +99,22 @@ def calculate_link_scores(graph:Graph, pages:Set, depth):
         decay - faktor opadanja uticaja sa dubinom.
     """
 
+    # pripremi povratnu vrednost - O(n)
     scores = dict(zip(pages, itertools.repeat(0)))
 
+    # spoljasnja petlja - O(n)
     for page in pages:
-        val = pages.elements[page]
+        val = int(pages.elements[page])
+        # unutrasnja petlja - zavisi od depth
+        # me - maksimalan broj ivica koje izlaze iz cvora u grafu
+        # depth = 1 -> O(me)
+        # depth = 2 -> O(me^2)
+        # depth->Inf -> O(e)
         for pg, lnum, d in graph.bfs(page, depth):
             if d>0 and pg in scores and pg != page:
                 scores[pg] += val/lnum
+    # sve ukupno - O(e) za d=1 i n=v
+    # O(n*e) za d->Inf 
 
     return scores
 
@@ -99,9 +130,16 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
         params - parametri potrebni za rangiranje.
     """
 
-    linkScores = calculate_link_scores(graph, searchResult, params.depth)
-    wordScores = searchResult.elements
+    # odvoji skor od reci od skora za or - O(n)
+    wordsOnly = Set()
+    for page in searchResult:
+        wordsOnly.add(page, searchResult.elements[page].wordScore)
 
+    # izracuna skor za linkove - O(e) za samo direktne, O(n*e) za citav graf, nesto izmedju trenutno
+    linkScores = calculate_link_scores(graph, wordsOnly, params.depth) 
+    wordScores = wordsOnly.elements
+
+    # trazi maksimume za skaliranje - O(n)
     wordMax = max(wordScores.values())
     if wordMax == 0:
         wordMax = 1
@@ -117,11 +155,12 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
         genLinkMax = 1
     genLinkInf = params.generalLinkInf
 
+    # vraca stranice jednu po jednu jer radix svakako prvo pravi listu
     for page in searchResult:
         wScore = wordScores[page]/wordMax*wordInf*10
         relLinkScore = linkScores[page]/linkMax*linkInf*10
         genLinkScore = initLinkScores[page]/genLinkMax*genLinkInf*10
-        yield RankResult(page, wScore, relLinkScore, genLinkScore)
+        yield RankResult(page, wScore, relLinkScore, genLinkScore, searchResult.elements[page].orScore, params.orWeight)
 
 
 def radix(iterable):
@@ -132,10 +171,13 @@ def radix(iterable):
         implementirane metode __int__ i __gt__.
     """
 
+    # pretvori iterable u listu - O(n)
     retVal = list(iterable)
+    # max u listi - O(n)
     val = max(retVal)
     mask = 1
 
+    # sam radix - O(n)
     while mask < 2*int(val):
         zero = []
         one = []

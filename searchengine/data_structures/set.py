@@ -1,3 +1,5 @@
+import copy
+
 class Set:
     """Implementacija skupa zasnovana na upotrebi ugradjenog tipa dictionary.
     
@@ -71,9 +73,9 @@ class Set:
         """Vrati uniju skupova."""
         retVal = Set()
         for (elem, val) in self.elements.items():
-            retVal.add(elem, val)
+            retVal.add(elem, copy.copy(val))
         for (elem, val) in other.elements.items():
-            retVal.add(elem, val)
+            retVal.add(elem, copy.copy(val))
         return retVal
 
     def __str__(self):

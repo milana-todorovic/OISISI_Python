@@ -39,14 +39,14 @@ class SearchEngine:
             self.graph.insert_edge(file, links)
             s = Set(map(str.lower, words))
             for word, val in s.elements.items():
-                self.trie.add(word, file, val)
+                self.trie.add(word, file, ranking.RankData(val, 1))
 
         self.initLinkScores = ranking.calculate_link_scores(self.graph, Set(htmlfiles), self.rParams.depth)
 
         # skup svih stranica, potreban za ! operator kod kompleksne pretrage
         self.allPages = Set()
         for page in htmlfiles:
-            self.allPages.add(page, val=0)
+            self.allPages.add(page, val=ranking.RankData(0, 1))
 
         return True
 
