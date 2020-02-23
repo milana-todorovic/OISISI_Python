@@ -50,7 +50,7 @@ class Set:
         retVal = Set()
         for (elem, val) in self.elements.items():
             if elem not in other:
-                retVal.add(elem, val)
+                retVal.add(elem, copy.copy(val))
         return retVal
 
     def __and__(self, other):

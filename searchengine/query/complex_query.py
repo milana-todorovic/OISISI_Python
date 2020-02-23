@@ -12,8 +12,8 @@ class OrNode:
         self.rightOperand = rightOperand
 
     def evaluate(self, trie:Trie, allPages:Set):
-        # TODO napraviti metodu za evaluaciju
-        return Set()
+        """Evaluiraj podstablo i vrati uniju."""
+        return self.leftOperand.evaluate(trie, allPages) | self.rightOperand.evaluate(trie, allPages)
 
 
 class AndNode:
@@ -24,8 +24,8 @@ class AndNode:
         self.rightOperand = rightOperand
 
     def evaluate(self, trie:Trie, allPages:Set):
-        # TODO napraviti metodu za evaluaciju
-        return Set()
+        """Evaluiraj podstablo i vrati presek."""
+        return self.leftOperand.evaluate(trie, allPages) & self.rightOperand.evaluate(trie, allPages)
 
 
 class NotNode:
@@ -35,8 +35,8 @@ class NotNode:
         self.operand = operand
 
     def evaluate(self, trie:Trie, allPages:Set):
-        # TODO napraviti metodu za evaluaciju
-        return Set()
+        """Evaluiraj podstablo i vrati razliku."""
+        return allPages - self.operand.evaluate(trie, allPages)
 
 
 class WordNode:
@@ -46,8 +46,8 @@ class WordNode:
         self.word = word
 
     def evaluate(self, trie:Trie, allPages:Set):
-        # TODO napraviti metodu za evaluaciju
-        return Set()
+        """Evaluiraj podstablo i vrati skup stranica koje sadrže reč."""
+        return trie.find(self.word.lower())
 
 
 class ComplexQueryError(Exception):
