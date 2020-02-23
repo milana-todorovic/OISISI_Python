@@ -152,8 +152,89 @@ class UIHandler:
         if op == "p":
             self.change_results_per_page()
         elif op == "r":
-            # TODO napraviti izmenu parametara rangiranja
-            pass
+            self.edit_ranking_params()
         else:
             return
 
+    def edit_ranking_params(self):
+        """Promeni podesavanja rangiranja."""
+
+        print()
+        print("P - Izmena uticaja broja reci i linkova")
+        print("O - Izmena uticaja or upita")
+        # TODO dozvoliti ovo ili ne?
+        #print("D - Izmena dubine obilaska grafa pri racunanju uticaja linkova")
+        print("Bilo koji drugi karakter za povratak na glavni meni.")
+        op = input("\t>> ").lower()
+        if op == "p":
+            self.edit_influences()
+        elif op == "o":
+            self.edit_or_factor()
+        #elif op == "d":
+            #self.edit_depth()
+        else:
+            return
+
+    def edit_or_factor(self):
+        wrong = True
+
+        while wrong:
+            try:
+                print()
+                print("Unesite željeni faktor uticaja or upita.")
+                print("Ocekivana vrednost: izmedju 0 i 1.")
+                print("Trenutna vrednost: " + str(self.engine.rParams.orWeight))
+                i = float(input("Nova vrednost:\t>> "))
+                if i < 0:
+                    raise ValueError()
+                self.engine.set_or_weight(i)
+                wrong = False
+            except ValueError:
+                print("Unos mora biti nenegativan broj!")
+
+    def edit_influences(self):
+        wrong = True
+
+        while wrong:
+            try:
+                print()
+                print("Unesite željene procente uticaja. Zbir mora biti 100.")
+                print("Trenutna vrednost uticaja reci: " + str(self.engine.rParams.wordInf))
+                print("Trenutna vrednost uticaja relevantnih linkova: " + str(self.engine.rParams.relevantLinkInf))
+                print("Trenutna vrednost uticaja svih linkova: " + str(self.engine.rParams.generalLinkInf))
+                w = float(input("Novi uticaj reci:\t>> "))
+                rl = float(input("Novi uticaj relevantnih linkova:\t>> "))
+                gl = float(input("Novi uticaj svih linkova:\t>> "))
+                if w < 0 or rl < 0 or gl < 0:
+                    print("Vrednosti moraju biti pozitivne!")
+                    continue
+                if w + rl + gl != 100:
+                    print("Zbir vrednosti mora biti 100!")
+                    continue
+                self.engine.set_influences(w, rl, gl)
+                wrong = False
+            except ValueError:
+                print("Uneta vrednost mora biti broj!")
+
+    def edit_depth(self):
+        wrong = True
+
+        while wrong:
+            try:
+                print()
+                print("Unesite željenu dubinu obilaska grafa.")
+                print("Ocekivana vrednost: pozitivan broj ili None.")
+                print("Preporučena vrednost: maksimalno 2. Veće vrednosti mogu izazvati značajnu degradaciju performansi!")
+                print("Trenutna vrednost: " + str(self.engine.rParams.depth))
+                val = input("Nova vrednost:\t>> ").lower()
+                if val == "none":
+                    self.engine.set_depth(None)
+                    wrong = False
+                else:
+                    i = int(val)
+                    if i <= 0:
+                        raise ValueError()
+                    self.engine.set_depth(i)
+                    wrong = False
+            except ValueError:
+                print("Unos mora biti prirodan broj ili None!")

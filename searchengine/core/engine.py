@@ -51,6 +51,12 @@ class SearchEngine:
         return True
 
     def complex_search(self, query):
+        """Pretrazi i rangiraj rezultat.
+
+        Argumenti:
+            query - kompleksni upit po kom se pretrazuje.
+        """
+
         result = self.complexParser.parse(query).evaluate(self.trie, self.allPages)
         return ranking.rank_and_sort(self.graph, result, self.initLinkScores, self.rParams)
 
@@ -78,5 +84,35 @@ class SearchEngine:
 
         return ranking.rank_and_sort(self.graph, rezultujuci_skup, self.initLinkScores, self.rParams)
 
+    def set_or_weight(self, orWeight):
+        """Izmeni uticaj or upita na rangiranje.
+        
+        Argumenti:
+            orWeight - vrednost izmedju 0 i 1. Za rezultat koji sadrzi N reci u or upitu,
+            konacni rang se racuna po formuli rang*((N - 1) * orWeight + 1)
+        """
 
-    # TODO dodati setere za parametre za rangiranje
+        self.rParams.orWeight = orWeight
+
+    def set_depth(self, depth):
+        """Izmeni dubinu do koje se obilazi graf pri racunanju uticaja linkova na rang.
+
+        Argumenti:
+            depth - prirodan broj ili None. Velika vrednost ovog parametra znacajno
+            degradira performanse pretrage.
+        """
+        self.rParams.depth = depth
+        self.initLinkScores = ranking.calculate_link_scores(self.graph, Set(self.graph.get_nodes()), self.rParams.depth)
+
+    def set_influences(self, wordInfluence, relLinkInfluence, genLinkInfluence):
+        """Izmeni uticaj razlcitih komponenti na rang stranice. 
+
+        Argumenti:
+            Ocekuje se da je zbir argumenata 100.
+            wordInfluence - uticaj reci, u procentima.
+            relLinkInfluence - uticaj linkova sa stranica koje sadrze rec, u procentima.
+            genLinkInfluence - uticaj linkova sa svih stranica, bez obrzira na broj reci, u procentima.
+        """
+        self.rParams.wordInf = wordInfluence
+        self.rParams.relevantLinkInf = relLinkInfluence
+        self.rParams.generalLinkInf = genLinkInfluence
