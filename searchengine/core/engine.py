@@ -41,7 +41,7 @@ class SearchEngine:
             for word, val in s.elements.items():
                 self.trie.add(word, file, val)
 
-        self.initLinkScores = ranking.calculate_link_scores(self.graph, Set(htmlfiles), self.rParams.depth, self.rParams.decay)
+        self.initLinkScores = ranking.calculate_link_scores(self.graph, Set(htmlfiles), self.rParams.depth)
 
         # skup svih stranica, potreban za ! operator kod kompleksne pretrage
         self.allPages = Set()

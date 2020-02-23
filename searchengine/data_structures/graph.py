@@ -63,14 +63,15 @@ class Graph:
         obradjeni = set()
 
         if startNode in self.edges:
-            queue.append((startNode, 0))
+            queue.append((startNode, 1, 0))
 
         while len(queue) != 0:
-            node, currdepth = queue.popleft()
+            node, lnum, currdepth = queue.popleft()
             if (depth is None or currdepth < depth) and node not in obradjeni:
-                queue.extend(zip(self.edges[node], itertools.repeat(currdepth + 1)))
+                link_num = len(self.edges[node])
+                queue.extend(zip(self.edges[node], itertools.repeat(link_num * lnum), itertools.repeat(currdepth + 1)))
                 obradjeni.add(node)
-            yield node, currdepth
+            yield node, lnum, currdepth
             
 
         

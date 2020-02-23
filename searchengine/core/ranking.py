@@ -9,7 +9,7 @@ from searchengine.data_structures.set import Set
 class RankingParameters:
     """Klasa koja sadrzi parametre koji uticu na rangiranje."""
 
-    def __init__(self, wordInfluence=50, linkInfluence=50, initialLinkWeight=1, decay=0.8, depth=2):
+    def __init__(self, wordInfluence=50, relevantLinkInfluence=40, generalLinkInfluence=10, depth=2):
         """Inicijalizacija parametara rangirnja.
 
         Argumenti:
@@ -23,21 +23,21 @@ class RankingParameters:
             uticaja na rang stranica koje linkuje.
             depth - dubina do koje linkovi imaju uticaj. 
         """
-        self.wordInfluence = wordInfluence
-        self.linkInfluence = linkInfluence
-        self.initLinkWeight = initialLinkWeight
-        self.decay = decay
+        self.wordInf = wordInfluence
+        self.relevantLinkInf = relevantLinkInfluence
+        self.generalLinkInf = generalLinkInfluence
         self.depth = depth
 
 
 class RankResult:
     """Klasa koja predstavlja stranicu sa izracunatim rangom."""
 
-    def __init__(self, path, wordScore, linkScore):
+    def __init__(self, path, wordScore, relevantLinkScore, generalLinkScore):
         self.path = path
         self.wordScore = wordScore
-        self.linkScore = linkScore
-        self.rank = int(wordScore + linkScore)
+        self.relLinkScore = relevantLinkScore
+        self.genLinkScore = generalLinkScore
+        self.rank = int(wordScore + relevantLinkScore + generalLinkScore)
 
     def __int__(self):
         return self.rank
@@ -46,7 +46,8 @@ class RankResult:
         return int(self) > int(other)
 
     def __str__(self):
-        return ("{}:\n\tWord Score: {}\tLink Score: {}\tTotal:{}").format(self.path, self.wordScore, self.linkScore, self.rank)
+        strformat = "{}:\n\tReci: {:.2f}\tRelevantni linkovi: {:.2f}\tSvi linkovi: {:.2f}\tUkupno: {}"
+        return strformat.format(self.path, self.wordScore, self.relLinkScore, self.genLinkScore, self.rank)
 
 
 def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:RankingParameters):
@@ -65,7 +66,7 @@ def rank_and_sort(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ran
         return radix(calculate_rank(graph, searchResult, initLinkScores, params))
 
 
-def calculate_link_scores(graph:Graph, pages:Set, depth, decay):
+def calculate_link_scores(graph:Graph, pages:Set, depth):
     """Izracunaj uticaj linkova na rang.
     
     Argumenti:
@@ -76,16 +77,13 @@ def calculate_link_scores(graph:Graph, pages:Set, depth, decay):
         decay - faktor opadanja uticaja sa dubinom.
     """
 
-    # TODO dodati da broj linkova koje stranica sadrzi utice na skor koji ona prenosi 
-    # stranicama koje linkuje? (po uzoru na PageRank)
-
     scores = dict(zip(pages, itertools.repeat(0)))
 
     for page in pages:
         val = pages.elements[page]
-        for pg, d in graph.bfs(page, depth):
+        for pg, lnum, d in graph.bfs(page, depth):
             if d>0 and pg in scores and pg != page:
-                scores[pg] += val * decay**d
+                scores[pg] += val/lnum
 
     return scores
 
@@ -101,23 +99,29 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
         params - parametri potrebni za rangiranje.
     """
 
-    linkScores = calculate_link_scores(graph, searchResult, params.depth, params.decay)
-    finalLinkScores = {}
-    for page in linkScores:
-        finalLinkScores[page] = linkScores[page] + params.initLinkWeight * initLinkScores[page]
+    linkScores = calculate_link_scores(graph, searchResult, params.depth)
     wordScores = searchResult.elements
 
     wordMax = max(wordScores.values())
     if wordMax == 0:
         wordMax = 1
-    wordInf = params.wordInfluence
-    linkMax = max(finalLinkScores.values())
+    wordInf = params.wordInf
+
+    linkMax = max(linkScores.values())
     if linkMax == 0:
         linkMax = 1
-    linkInf = params.linkInfluence
+    linkInf = params.relevantLinkInf
+
+    genLinkMax = max(initLinkScores.values())
+    if genLinkMax == 0:
+        genLinkMax = 1
+    genLinkInf = params.generalLinkInf
 
     for page in searchResult:
-        yield RankResult(page, wordScores[page]/wordMax*wordInf*10, finalLinkScores[page]/linkMax*linkInf*10)
+        wScore = wordScores[page]/wordMax*wordInf*10
+        relLinkScore = linkScores[page]/linkMax*linkInf*10
+        genLinkScore = initLinkScores[page]/genLinkMax*genLinkInf*10
+        yield RankResult(page, wScore, relLinkScore, genLinkScore)
 
 
 def radix(iterable):
