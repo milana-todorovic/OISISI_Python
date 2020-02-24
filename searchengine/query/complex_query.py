@@ -51,6 +51,10 @@ class NotNode:
             leftOperand = NotNode(self.operand.leftOperand)
             rightOperand = NotNode(self.operand.rightOperand)
             return OrNode(leftOperand, rightOperand).transform()
+        elif isinstance(self.operand, OrNode):
+            leftOperand = NotNode(self.operand.leftOperand)
+            rightOperand = NotNode(self.operand.rightOperand)
+            return AndNode(leftOperand, rightOperand).transform()
         else:
             self.operand = self.operand.transform()
             return self
