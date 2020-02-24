@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 from searchengine.core.engine import SearchEngine
 from searchengine.query.simple_query import SimpleQueryError
@@ -46,13 +47,21 @@ class UIHandler:
         while wrong:
             print()
             rootdir = input("Unesite željeni direktorijum.\n\t>> ")
+            if not os.path.isdir(rootdir):
+                print("Unesena putanja nije postojeći direktorijum!")
+                continue
+            try:
+                absdir = os.path.abspath(rootdir)
+            except Exception:
+                print("Greška pri konverziji putanje!")
+                continue
             print("Učitavanje...")
             start = datetime.now()
-            if self.engine.loadroot(rootdir):
+            if self.engine.loadroot(absdir):
                 print("Učitavanje uspešno. Utrošeno vreme: " + str(datetime.now() - start))
                 wrong = False
             else:
-                print("Unesena putanja nije postojeći direktorijum ili ne sadrži html fajlove!")
+                print("Greška pri učitavanju ili direktorijum ne sadrži html faljove!")
 
     def simple_search(self):
         """Pretrazi po osnovnom upitu."""
