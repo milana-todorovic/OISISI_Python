@@ -43,6 +43,7 @@ Koraci za upit od *m* reči, uz navedenu kompleksnost:
 * Primena skupovnih operatora: Zavisi od broja stranica u skupu pronađenom za svaku reč i operatora. Za binarne operacije, pogledati kompleksnost operacija tipa Set. 
 
 ### Rangiranje
+Detaljan opis načina rangiranja stranica nalazi se u /about/rangiranje.pdf.
 
 ### Sortiranje
 Korišteni algoritam je radix sort, uz modifikaciju zbog promenljive dužine integera u Python-u. Koraci za sortiranje niza od *n* elemenata, uz kompleksnost:
@@ -54,8 +55,8 @@ Vrši se jednom, tokom učitavanja direktorijuma koji se pretražuje.
 Koraci, uz navedenu kompleksnost:  
 * Pronalaženje svih html stranica u direktorijumu, upotrebom funkcije os.walk: **O(d)**, gde je *d* ukupan broj fajlova i poddirektorijuma u zadatom direktorijumu
 * Ubacivanje čvorova u graf: **O(v)**, gde je *v* ukupan broj pronađenih html stranica
-* Parsiranje stranica upotrebom datog parsera, uz izdvajanje linkova i reci iz stranica
+* Parsiranje stranica upotrebom datog parsera, uz izdvajanje linkova i reci iz stranica - zbog potrebe pristupa disku, obično vremenski najzahtevniji deo algoritma (pod pretpostavkom da su u zadatom direktorijumu pronađene html stranice)
 * Ubacivanje grana u graf: **O(e)**, gde je *e* ukupan broj linkova u stranicama
 * Ubacivanje reci u trie: **O(v*w)**, gde je *w* maksimalan broj reči u stranici
 * Formiranje skupa svih stranica (za potrebe napredne pretrage): **O(v)**
-* Računanje inicijalnog uticaja linkova na rang: između **O(e)** i **O(v*e)**
+* Računanje inicijalnog uticaja linkova na rang: između **O(v + e)** i **O(v*(v + e))**
