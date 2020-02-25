@@ -11,6 +11,11 @@ class OrNode:
         self.leftOperand = leftOperand
         self.rightOperand = rightOperand
 
+    def transform(self):
+        self.leftOperand = self.leftOperand.transform()
+        self.rightOperand = self.rightOperand.transform()
+        return self
+
     def evaluate(self, trie:Trie, allPages:Set):
         """Evaluiraj podstablo i vrati uniju."""
         return self.leftOperand.evaluate(trie, allPages) | self.rightOperand.evaluate(trie, allPages)
@@ -23,6 +28,11 @@ class AndNode:
         self.leftOperand = leftOperand
         self.rightOperand = rightOperand
 
+    def transform(self):
+        self.leftOperand = self.leftOperand.transform()
+        self.rightOperand = self.rightOperand.transform()
+        return self
+
     def evaluate(self, trie:Trie, allPages:Set):
         """Evaluiraj podstablo i vrati presek."""
         return self.leftOperand.evaluate(trie, allPages) & self.rightOperand.evaluate(trie, allPages)
@@ -34,6 +44,21 @@ class NotNode:
     def __init__(self, operand):
         self.operand = operand
 
+    def transform(self):
+        if isinstance(self.operand, NotNode):
+            return self.operand.operand.transform()
+        elif isinstance(self.operand, AndNode):
+            leftOperand = NotNode(self.operand.leftOperand)
+            rightOperand = NotNode(self.operand.rightOperand)
+            return OrNode(leftOperand, rightOperand).transform()
+        elif isinstance(self.operand, OrNode):
+            leftOperand = NotNode(self.operand.leftOperand)
+            rightOperand = NotNode(self.operand.rightOperand)
+            return AndNode(leftOperand, rightOperand).transform()
+        else:
+            self.operand = self.operand.transform()
+            return self
+
     def evaluate(self, trie:Trie, allPages:Set):
         """Evaluiraj podstablo i vrati razliku."""
         return allPages - self.operand.evaluate(trie, allPages)
@@ -44,6 +69,9 @@ class WordNode:
 
     def __init__(self, word):
         self.word = word
+
+    def transform(self):
+        return self
 
     def evaluate(self, trie:Trie, allPages:Set):
         """Evaluiraj podstablo i vrati skup stranica koje sadrže reč."""
@@ -107,6 +135,6 @@ class ComplexQueryParser:
         """Parsiraj upit i vrati stablo medjukoda."""
 
         try:
-            return self.parser.parse(query)
+            return self.parser.parse(query).transform()
         except parglare.exceptions.ParseError:
             raise ComplexQueryError()
