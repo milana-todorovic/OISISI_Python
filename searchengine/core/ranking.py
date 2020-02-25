@@ -96,22 +96,13 @@ def calculate_link_scores(graph:Graph, pages:Set, depth):
         depth - dubina do koje se obilazi graf.
     """
 
-    # pripremi povratnu vrednost - O(n)
     scores = dict(zip(pages, itertools.repeat(0)))
 
-    # spoljasnja petlja - O(n)
     for page in pages:
         val = int(pages.elements[page])
-        # unutrasnja petlja - zavisi od depth
-        # me - maksimalan broj ivica koje izlaze iz cvora u grafu
-        # depth = 1 -> O(me)
-        # depth = 2 -> O(me^2)
-        # depth->Inf -> O(e)
         for pg, lnum, d in graph.bfs(page, depth):
             if d>0 and pg in scores and pg != page:
                 scores[pg] += val/lnum
-    # sve ukupno - O(e) za d=1 i n=v
-    # O(n*e) za d->Inf 
 
     return scores
 
@@ -132,7 +123,7 @@ def calculate_rank(graph:Graph, searchResult:Set, initLinkScores:dict, params:Ra
     for page in searchResult:
         wordsOnly.add(page, searchResult.elements[page].wordScore)
 
-    # izracuna skor za linkove - O(e) za samo direktne, O(n*e) za citav graf, nesto izmedju trenutno
+    # izracuna skor za linkove - O(n + e) za samo direktne, O(n*(v + e)) za citav graf, nesto izmedju trenutno
     linkScores = calculate_link_scores(graph, wordsOnly, params.depth) 
     wordScores = wordsOnly.elements
 
